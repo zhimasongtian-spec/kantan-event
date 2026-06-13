@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>かんたんイベント — アプリ企画書</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Meiryo', sans-serif;
+    background: #f1f5f9;
+    color: #1a1a2e;
+    padding: 32px 16px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* バナー */
+  .banner {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    line-height: 0;
+  }
+  .banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* セクション共通 */
+  .section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .section-label .num {
+    background: #4f46e5;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  /* ① ターゲット */
+  .target-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .target-card {
+    border-radius: 12px;
+    padding: 20px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .target-card.organizer { background: #eef2ff; }
+  .target-card.participant { background: #f0fdf4; }
+  .target-icon { font-size: 32px; line-height: 1; }
+  .target-info .title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .target-card.organizer .title { color: #4338ca; }
+  .target-card.participant .title { color: #16a34a; }
+  .target-info .desc { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+  /* ② 課題 */
+  .pain-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .pain-group h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pain-group.organizer h4 { color: #4338ca; }
+  .pain-group.participant h4 { color: #16a34a; }
+  .pain-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .pain-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .organizer .pain-dot { background: #818cf8; }
+  .participant .pain-dot { background: #4ade80; }
+
+  /* ③ 解決策 */
+  .solution-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .solution-card {
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .solution-icon {
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+    background: #eef2ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .solution-text .title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #3730a3;
+    margin-bottom: 3px;
+  }
+  .solution-text .desc { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+  /* フロー図 */
+  .flow-section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  .flow-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .flow-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+  .flow-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .flow-circle.c1 { background: #ddd6fe; }
+  .flow-circle.c2 { background: #a5f3fc; }
+  .flow-circle.c3 { background: #bbf7d0; }
+  .flow-circle.c4 { background: #fde68a; }
+  .flow-circle.c5 { background: #fca5a5; }
+  .flow-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .flow-arrow {
+    font-size: 20px;
+    color: #cbd5e1;
+    padding: 0 6px;
+    margin-bottom: 22px;
+  }
+
+  /* タグライン */
+  .tagline-box {
+    background: #4f46e5;
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+    color: #fff;
+  }
+  .tagline-box .main {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .tagline-box .sub {
+    font-size: 14px;
+    opacity: 0.82;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- バナー -->
+  <div class="banner">
+    <img src="kantan_event_banner.png" alt="かんたんイベント — 企画から報告まで、すべてをひとつに。">
+  </div>
+
+  <!-- ① ターゲット -->
+  <div class="section">
+    <div class="section-label"><span class="num">1</span> ターゲット</div>
+    <div class="target-grid">
+      <div class="target-card organizer">
+        <div class="target-icon">🗂️</div>
+        <div class="target-info">
+          <div class="title">企画者</div>
+          <div class="desc">複数グループで<br>イベントを運営する人</div>
+        </div>
+      </div>
+      <div class="target-card participant">
+        <div class="target-icon">🙋</div>
+        <div class="target-info">
+          <div class="title">参加者</div>
+          <div class="desc">イベントを探して<br>気軽に参加したい人</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 課題 -->
+  <div class="section">
+    <div class="section-label"><span class="num">2</span> 困りごと・課題</div>
+    <div class="pain-cols">
+      <div class="pain-group organizer">
+        <h4>🗂️ 企画者の悩み</h4>
+        <div class="pain-item organizer"><span class="pain-dot"></span>複数グループの日程が被らないか確認が大変</div>
+        <div class="pain-item organizer"><span class="pain-dot"></span>チラシを誰が作るか決まらない</div>
+        <div class="pain-item organizer"><span class="pain-dot"></span>HP・LINE・Facebookへの掲載が手間</div>
+        <div class="pain-item organizer"><span class="pain-dot"></span>参加者の人数・情報管理が煩雑</div>
+        <div class="pain-item organizer"><span class="pain-dot"></span>開催後の報告を手動でHPに書くのが負担</div>
+      </div>
+      <div class="pain-group participant">
+        <h4>🙋 参加者の悩み</h4>
+        <div class="pain-item participant"><span class="pain-dot"></span>どこでいつイベントがあるかわからない</div>
+        <div class="pain-item participant"><span class="pain-dot"></span>参加登録の手続きが面倒</div>
+        <div class="pain-item participant"><span class="pain-dot"></span>キャンセルがしづらい</div>
+        <div class="pain-item participant"><span class="pain-dot"></span>現在の参加人数がわからない</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 解決策 -->
+  <div class="section">
+    <div class="section-label"><span class="num">3</span> どう解決する？</div>
+    <div class="solution-flow">
+      <div class="solution-card">
+        <div class="solution-icon">📅</div>
+        <div class="solution-text">
+          <div class="title">スマートスケジューリング</div>
+          <div class="desc">複数グループの日程を一元管理。日程の重複を自動で検知・通知。</div>
+        </div>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">🎨</div>
+        <div class="solution-text">
+          <div class="title">チラシ自動生成</div>
+          <div class="desc">イベント情報を入力するだけで、見栄えのよいチラシを自動作成。</div>
+        </div>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">📣</div>
+        <div class="solution-text">
+          <div class="title">ワンクリック一括配信</div>
+          <div class="desc">HP・LINE・Facebookへ同時掲載。開催後レポートも自動投稿。</div>
+        </div>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">👥</div>
+        <div class="solution-text">
+          <div class="title">参加者管理ダッシュボード</div>
+          <div class="desc">参加申込・キャンセル・人数をリアルタイムで確認・管理。</div>
+        </div>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">✅</div>
+        <div class="solution-text">
+          <div class="title">かんたん参加登録</div>
+          <div class="desc">参加者はワンタップで申込・キャンセル。現在の参加人数もすぐ確認。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- フロー図 -->
+  <div class="flow-section">
+    <div class="flow-title">イベントの流れ</div>
+    <div class="flow-diagram">
+      <div class="flow-box">
+        <div class="flow-circle c1">📝</div>
+        <div class="flow-label">イベント<br>登録</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="flow-circle c2">🎨</div>
+        <div class="flow-label">チラシ<br>自動生成</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="flow-circle c3">📣</div>
+        <div class="flow-label">一括<br>配信</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="flow-circle c4">🙋</div>
+        <div class="flow-label">参加<br>受付</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="flow-circle c5">📊</div>
+        <div class="flow-label">開催後<br>自動報告</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- タグライン -->
+  <div class="tagline-box">
+    <div class="main">複数の企画メンバーで情報を共有<br>企画者も参加者も、もう手間なし</div>
+    <div class="sub">登録・チラシ・配信・管理・報告 ── すべてをひとつのアプリで完結</div>
+  </div>
+
+</div>
+</body>
+</html>
