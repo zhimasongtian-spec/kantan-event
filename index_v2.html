@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>かんたんイベント — コミュニティ向けイベント管理アプリ</title>
+<style>
+  :root {
+    --indigo: #6366f1;
+    --violet: #8b5cf6;
+    --purple: #a855f7;
+    --dark: #0f0e17;
+    --dark2: #16152a;
+    --dark3: #1e1c35;
+    --card: rgba(255,255,255,0.05);
+    --card-border: rgba(255,255,255,0.1);
+    --text: #e8e8f0;
+    --muted: #8b8ba8;
+    --green: #34d399;
+    --cyan: #22d3ee;
+    --amber: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Meiryo', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── BANNER ── */
+  .banner { width: 100%; line-height: 0; position: relative; }
+  .banner img { width: 100%; height: auto; display: block; }
+  .banner::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--dark));
+  }
+
+  /* ── CONTAINER ── */
+  .container { max-width: 820px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── SECTION HEADER ── */
+  .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .step-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.35);
+    border-radius: 999px; padding: 5px 14px 5px 8px;
+  }
+  .step-num {
+    width: 22px; height: 22px; background: var(--indigo); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #fff;
+  }
+  .step-label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #a5b4fc; text-transform: uppercase; }
+  .section-title { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+
+  /* ── GLASS CARD ── */
+  .glass {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .section { margin-bottom: 24px; padding: 32px; }
+
+  /* ── BG ORBS ── */
+  .bg-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: -1; }
+  .bg-orb-1 { width: 400px; height: 400px; background: rgba(99,102,241,0.12); top: -100px; right: -100px; }
+  .bg-orb-2 { width: 300px; height: 300px; background: rgba(168,85,247,0.08); bottom: 200px; left: -100px; }
+
+  /* ── TAGLINE BLOCK ── */
+  .tagline-block {
+    text-align: center;
+    padding: 16px 0 36px;
+  }
+  .tagline-label {
+    display: inline-block;
+    background: rgba(99,102,241,0.2);
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #a5b4fc;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    padding: 5px 16px; border-radius: 999px; margin-bottom: 16px;
+  }
+  .tagline-main {
+    font-size: 32px; font-weight: 900; line-height: 1.35; color: #fff; margin-bottom: 12px;
+  }
+  .tagline-main span {
+    background: linear-gradient(90deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .tagline-sub { font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+  /* ── ① COMMUNITY TYPES ── */
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .comm-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .comm-card:hover { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); }
+  .comm-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+  .comm-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .comm-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── ② USER ROLES ── */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .role-card {
+    border-radius: 16px; padding: 24px 20px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .role-card.admin {
+    background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(139,92,246,0.08));
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+  .role-card.member {
+    background: linear-gradient(135deg, rgba(52,211,153,0.12), rgba(34,211,238,0.06));
+    border: 1px solid rgba(52,211,153,0.25);
+  }
+  .role-icon-wrap {
+    width: 52px; height: 52px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .admin .role-icon-wrap { background: rgba(99,102,241,0.2); }
+  .member .role-icon-wrap { background: rgba(52,211,153,0.15); }
+  .role-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .admin .role-badge { color: #a5b4fc; }
+  .member .role-badge { color: #6ee7b7; }
+  .role-title { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+  .role-bullets { list-style: none; }
+  .role-bullets li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; color: #c4c4d8; margin-bottom: 7px; line-height: 1.45;
+  }
+  .role-bullets li::before { content: '›'; color: var(--muted); font-weight: 700; flex-shrink: 0; }
+
+  /* ── ③ FEATURES ── */
+  .feat-list { display: flex; flex-direction: column; gap: 12px; }
+  .feat-row {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex; align-items: center; gap: 18px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .feat-row:hover { background: rgba(99,102,241,0.07); border-color: rgba(99,102,241,0.25); }
+  .feat-row::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; border-radius: 3px 0 0 3px;
+  }
+  .feat-row:nth-child(1)::before { background: #6366f1; }
+  .feat-row:nth-child(2)::before { background: #8b5cf6; }
+  .feat-row:nth-child(3)::before { background: #a855f7; }
+  .feat-row:nth-child(4)::before { background: #22d3ee; }
+  .feat-row:nth-child(5)::before { background: #34d399; }
+  .feat-row:nth-child(6)::before { background: #fbbf24; }
+  .feat-emoji {
+    font-size: 24px; width: 52px; height: 52px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .feat-body .feat-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .feat-body .feat-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .feat-tag {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .tag-auto { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.35); }
+  .tag-share { background: rgba(34,211,238,0.15); color: #67e8f9; border: 1px solid rgba(34,211,238,0.3); }
+  .tag-smart { background: rgba(168,85,247,0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.35); }
+  .tag-easy { background: rgba(52,211,153,0.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
+
+  /* ── FLOW ── */
+  .flow-wrap {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; flex-wrap: wrap; padding: 8px 0;
+  }
+  .flow-item { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 110px; }
+  .flow-orb {
+    width: 68px; height: 68px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+  }
+  .flow-orb.o1 { background: rgba(99,102,241,0.25); box-shadow: 0 0 20px rgba(99,102,241,0.3); }
+  .flow-orb.o2 { background: rgba(139,92,246,0.25); box-shadow: 0 0 20px rgba(139,92,246,0.3); }
+  .flow-orb.o3 { background: rgba(168,85,247,0.25); box-shadow: 0 0 20px rgba(168,85,247,0.3); }
+  .flow-orb.o4 { background: rgba(34,211,238,0.2); box-shadow: 0 0 20px rgba(34,211,238,0.25); }
+  .flow-orb.o5 { background: rgba(52,211,153,0.2); box-shadow: 0 0 20px rgba(52,211,153,0.25); }
+  .flow-label { font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; line-height: 1.4; }
+  .flow-arrow { color: rgba(255,255,255,0.2); font-size: 18px; padding: 0 4px; margin-bottom: 26px; flex-shrink: 0; }
+
+  /* ── BOTTOM CTA ── */
+  .bottom-cta {
+    background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.2));
+    border: 1px solid rgba(99,102,241,0.35);
+    border-radius: 24px; padding: 48px 32px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .bottom-cta::before {
+    content: ''; position: absolute;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.2), transparent 70%);
+    top: -100px; left: -80px;
+  }
+  .bottom-cta::after {
+    content: ''; position: absolute;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);
+    bottom: -60px; right: -40px;
+  }
+  .cta-tag {
+    display: inline-block;
+    background: rgba(99,102,241,0.3); border: 1px solid rgba(99,102,241,0.5);
+    color: #a5b4fc; font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    padding: 5px 16px; border-radius: 999px; margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .cta-main {
+    font-size: 24px; font-weight: 900; color: #fff; line-height: 1.45;
+    margin-bottom: 14px; position: relative; z-index: 1;
+  }
+  .cta-main span {
+    background: linear-gradient(90deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .cta-sub { font-size: 14px; color: var(--muted); line-height: 1.8; position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<!-- バナー -->
+<div class="banner">
+  <img src="kantan_event_banner.png" alt="かんたんイベント">
+</div>
+
+<div class="container">
+
+  <!-- タグライン -->
+  <div class="tagline-block">
+    <div class="tagline-label">COMMUNITY EVENT APP</div>
+    <div class="tagline-main">コミュニティの<span>イベント運営</span>を<br>もっとかんたんに。</div>
+    <div class="tagline-sub">地域団体・サークル・NPO・自治会など、<br>あらゆるコミュニティのイベントをひとつのアプリで完結。</div>
+  </div>
+
+  <!-- ① 対象コミュニティ -->
+  <div class="section glass">
+    <div class="section-head">
+      <div class="step-pill"><span class="step-num">1</span><span class="step-label">For</span></div>
+      <div class="section-title">こんなコミュニティに</div>
+    </div>
+    <div class="community-grid">
+      <div class="comm-card">
+        <span class="comm-icon">🏘️</span>
+        <div class="comm-name">自治会・町内会</div>
+        <div class="comm-desc">地域のお祭りや清掃活動を効率管理</div>
+      </div>
+      <div class="comm-card">
+        <span class="comm-icon">🎵</span>
+        <div class="comm-name">サークル・クラブ</div>
+        <div class="comm-desc">趣味グループの定例会や発表会を管理</div>
+      </div>
+      <div class="comm-card">
+        <span class="comm-icon">🌱</span>
+        <div class="comm-name">NPO・ボランティア</div>
+        <div class="comm-desc">ボランティア募集からイベント報告まで</div>
+      </div>
+      <div class="comm-card">
+        <span class="comm-icon">🏫</span>
+        <div class="comm-name">PTA・学校関係</div>
+        <div class="comm-desc">保護者向け行事の周知と出欠管理</div>
+      </div>
+      <div class="comm-card">
+        <span class="comm-icon">💼</span>
+        <div class="comm-name">同窓会・OB会</div>
+        <div class="comm-desc">同期との再会イベントをスムーズに</div>
+      </div>
+      <div class="comm-card">
+        <span class="comm-icon">⛪</span>
+        <div class="comm-name">宗教・文化団体</div>
+        <div class="comm-desc">定例行事や特別イベントの一元管理</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② ユーザー -->
+  <div class="section glass">
+    <div class="section-head">
+      <div class="step-pill"><span class="step-num">2</span><span class="step-label">Users</span></div>
+      <div class="section-title">2つの立場をサポート</div>
+    </div>
+    <div class="role-grid">
+      <div class="role-card admin">
+        <div class="role-icon-wrap">🗂️</div>
+        <div>
+          <div class="role-badge">Admin</div>
+          <div class="role-title">運営・幹事側</div>
+          <ul class="role-bullets">
+            <li>複数グループの日程を一元管理・重複を自動検知</li>
+            <li>チラシをワンクリックで自動生成</li>
+            <li>HP・LINE・Facebookへ同時配信</li>
+            <li>参加者情報をリアルタイムで把握</li>
+            <li>開催後レポートをSNS・HPに自動投稿</li>
+          </ul>
+        </div>
+      </div>
+      <div class="role-card member">
+        <div class="role-icon-wrap">🙋</div>
+        <div>
+          <div class="role-badge">Member</div>
+          <div class="role-title">メンバー・参加者側</div>
+          <ul class="role-bullets">
+            <li>お知らせが自動で届いてイベントを見逃さない</li>
+            <li>ワンタップで参加登録・キャンセル</li>
+            <li>現在の参加人数をいつでも確認</li>
+            <li>スマホ・PCどちらでも使える</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 機能 -->
+  <div class="section glass">
+    <div class="section-head">
+      <div class="step-pill"><span class="step-num">3</span><span class="step-label">Features</span></div>
+      <div class="section-title">主な機能</div>
+    </div>
+    <div class="feat-list">
+      <div class="feat-row">
+        <div class="feat-emoji">📅</div>
+        <div class="feat-body">
+          <div class="feat-title">スマートスケジューリング</div>
+          <div class="feat-desc">複数グループの日程を共有カレンダーで管理。日程の重複を自動検知して通知。</div>
+        </div>
+        <span class="feat-tag tag-smart">SMART</span>
+      </div>
+      <div class="feat-row">
+        <div class="feat-emoji">🎨</div>
+        <div class="feat-body">
+          <div class="feat-title">チラシ自動生成</div>
+          <div class="feat-desc">イベント情報を入力するだけで、印刷・SNS配信用のチラシを自動作成。</div>
+        </div>
+        <span class="feat-tag tag-auto">AUTO</span>
+      </div>
+      <div class="feat-row">
+        <div class="feat-emoji">📣</div>
+        <div class="feat-body">
+          <div class="feat-title">一括情報配信</div>
+          <div class="feat-desc">HP・LINE・Facebookへワンクリックで同時掲載。配信漏れゼロ。</div>
+        </div>
+        <span class="feat-tag tag-auto">AUTO</span>
+      </div>
+      <div class="feat-row">
+        <div class="feat-emoji">👥</div>
+        <div class="feat-body">
+          <div class="feat-title">参加者管理ダッシュボード</div>
+          <div class="feat-desc">申込・キャンセル・参加者情報をリアルタイムで一覧管理。名簿出力も簡単。</div>
+        </div>
+        <span class="feat-tag tag-share">SHARE</span>
+      </div>
+      <div class="feat-row">
+        <div class="feat-emoji">✅</div>
+        <div class="feat-body">
+          <div class="feat-title">かんたん参加登録</div>
+          <div class="feat-desc">メンバーはワンタップで申込・キャンセル。現在の参加人数もリアルタイム表示。</div>
+        </div>
+        <span class="feat-tag tag-easy">EASY</span>
+      </div>
+      <div class="feat-row">
+        <div class="feat-emoji">📊</div>
+        <div class="feat-body">
+          <div class="feat-title">開催後レポート自動作成</div>
+          <div class="feat-desc">参加人数・写真・コメントをまとめて、HPやSNSへ自動投稿。</div>
+        </div>
+        <span class="feat-tag tag-auto">AUTO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- フロー -->
+  <div class="section glass">
+    <div class="section-head" style="justify-content:center;">
+      <div class="section-title" style="font-size:17px;color:var(--muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">イベントの流れ</div>
+    </div>
+    <div class="flow-wrap">
+      <div class="flow-item">
+        <div class="flow-orb o1">📝</div>
+        <div class="flow-label">イベント<br>登録</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div class="flow-orb o2">🎨</div>
+        <div class="flow-label">チラシ<br>自動生成</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div class="flow-orb o3">📣</div>
+        <div class="flow-label">一括<br>配信</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div class="flow-orb o4">🙋</div>
+        <div class="flow-label">参加<br>受付</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div class="flow-orb o5">📊</div>
+        <div class="flow-label">開催後<br>自動報告</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="bottom-cta">
+    <div class="cta-tag">CONCEPT SUMMARY</div>
+    <div class="cta-main">
+      コミュニティの<span>つながりを、もっと豊かに。</span><br>
+      運営の手間をゼロに近づけるアプリ
+    </div>
+    <div class="cta-sub">
+      イベント登録・チラシ・配信・参加管理・報告<br>
+      すべてをひとつのアプリでかんたんに完結
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
